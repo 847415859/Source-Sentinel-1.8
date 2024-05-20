@@ -39,6 +39,11 @@ import com.alibaba.fastjson.TypeReference;
  * registered during the initialization of Sentinel.
  * </p>
  *
+ * 展示如何通过 Sentinel init SPI 机制注册可读可写数据源的示例。
+ * 要激活此功能，您可以将类名添加到资源目录的“META-INF/services/”目录中的
+ * “com.alibaba.csp.sentinel.init.InitFunc”文件中。
+ * 那么Sentinel初始化的时候就会自动注册数据源。
+ *
  * @author Eric Zhao
  */
 public class FileDataSourceInit implements InitFunc {
@@ -49,16 +54,19 @@ public class FileDataSourceInit implements InitFunc {
         String flowRuleDir = System.getProperty("user.home") + File.separator + "sentinel" + File.separator + "rules";
         String flowRuleFile = "flowRule.json";
         String flowRulePath = flowRuleDir + File.separator + flowRuleFile;
-
+        // // FileRefreshableDataSource 会周期性的读取文件以获取规则，当文件有更新时会及时发现，并将规则更新到内存中。
         ReadableDataSource<String, List<FlowRule>> ds = new FileRefreshableDataSource<>(
             flowRulePath, source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {})
         );
         // Register to flow rule manager.
+        // 将可读数据源注册至 FlowRuleManager.
         FlowRuleManager.register2Property(ds.getProperty());
 
         WritableDataSource<List<FlowRule>> wds = new FileWritableDataSource<>(flowRulePath, this::encodeJson);
         // Register to writable data source registry so that rules can be updated to file
         // when there are rules pushed from the Sentinel Dashboard.
+        // 将可写数据源注册至 transport 模块的 WritableDataSourceRegistry 中.
+        // 这样收到控制台推送的规则时，Sentinel 会先更新到内存，然后将规则写入到文件中.
         WritableDataSourceRegistry.registerFlowDataSource(wds);
     }
 

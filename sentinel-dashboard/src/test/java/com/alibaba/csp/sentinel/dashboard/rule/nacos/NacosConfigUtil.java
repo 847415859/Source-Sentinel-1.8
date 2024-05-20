@@ -20,9 +20,10 @@ package com.alibaba.csp.sentinel.dashboard.rule.nacos;
  * @since 1.4.0
  */
 public final class NacosConfigUtil {
-
+    // 对应 group Id
     public static final String GROUP_ID = "SENTINEL_GROUP";
-    
+
+    // 对应 dataId的后缀是 ${spring.application.name}-flow-rules
     public static final String FLOW_DATA_ID_POSTFIX = "-flow-rules";
     public static final String PARAM_FLOW_DATA_ID_POSTFIX = "-param-rules";
     public static final String CLUSTER_MAP_DATA_ID_POSTFIX = "-cluster-map";
