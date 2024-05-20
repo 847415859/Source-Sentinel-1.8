@@ -180,7 +180,7 @@ public interface Metric extends DebugSupport {
 
     /**
      * Get waiting pass account
-     *
+     * 获取等待通行证帐户
      * @return waiting pass count
      * @since 1.5.0
      */

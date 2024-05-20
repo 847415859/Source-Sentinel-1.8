@@ -137,21 +137,27 @@ public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
         throws Throwable {
         /*
          * It's interesting that we use context name rather resource name as the map key.
-         *
+         * 有趣的是，我们使用上下文名称而不是资源名称作为映射键。
          * Remember that same resource({@link ResourceWrapper#equals(Object)}) will share
          * the same {@link ProcessorSlotChain} globally, no matter in which context. So if
          * code goes into {@link #entry(Context, ResourceWrapper, DefaultNode, int, Object...)},
          * the resource name must be same but context name may not.
+         * 请记住，无论在哪个上下文中，相同的资源（{@link ResourceWrapperequals(Object)}）都将在全局范围内共享相同的{@link ProcessorSlotChain}。
+         * 因此，如果代码进入 {@link entry(Context, ResourceWrapper, DefaultNode, int, Object...)}，资源名称必须相同，但上下文名称可能不同。
          *
          * If we use {@link com.alibaba.csp.sentinel.SphU#entry(String resource)} to
          * enter same resource in different context, using context name as map key can
          * distinguish the same resource. In this case, multiple {@link DefaultNode}s will be created
          * of the same resource name, for every distinct context (different context name) each.
+         * 如果我们使用{@link com.alibaba.csp.sentinel.SphU.entry(String resource)}在不同的上下文中输入相同的资源，则使用上下文名称作为map key
+         * 可以区分相同的资源。在这种情况下，将为每个不同的上下文（不同的上下文名称）创建具有相同资源名称的多个 {@link DefaultNode}。
          *
          * Consider another question. One resource may have multiple {@link DefaultNode},
          * so what is the fastest way to get total statistics of the same resource?
          * The answer is all {@link DefaultNode}s with same resource name share one
          * {@link ClusterNode}. See {@link ClusterBuilderSlot} for detail.
+         * 考虑另一个问题。一个资源可能有多个{@link DefaultNode}，那么如何最快的方式获取同一资源的总统计数据呢？答案是所有具有相同资源名称的 {@link DefaultNode}
+         * 共享一个 {@link ClusterNode}。有关详细信息，请参阅 {@link ClusterBuilderSlot}。
          */
         DefaultNode node = map.get(context.getName());
         if (node == null) {
@@ -169,8 +175,9 @@ public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
 
             }
         }
-
+        // 设置上下文当前的节点
         context.setCurNode(node);
+        // 继续执行下一个规则
         fireEntry(context, resourceWrapper, node, count, prioritized, args);
     }
 

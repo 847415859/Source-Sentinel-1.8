@@ -19,7 +19,7 @@ import java.util.Collection;
 
 /**
  * Service interface of flow control.
- *
+ * 流控服务接口。
  * @author Eric Zhao
  * @since 1.4.0
  */

@@ -19,12 +19,14 @@ package com.alibaba.csp.sentinel.property;
  * <p>
  * This class holds current value of the config, and is responsible for informing all {@link PropertyListener}s
  * added on this when the config is updated.
+ * 此类保存配置的当前值，并负责在配置更新时通知添加到此的所有PropertyListener 。
  * </p>
+ *
  * <p>
  * Note that not every {@link #updateValue(Object newValue)} invocation should inform the listeners, only when
  * {@code newValue} is not Equals to the old value, informing is needed.
+ * 请注意，并非每个updateValue(Object newValue)调用都应该通知侦听器，只有当newValue不等于旧值时，才需要通知。
  * </p>
- *
  * @param <T> the target type.
  * @author Carpenter Lee
  */

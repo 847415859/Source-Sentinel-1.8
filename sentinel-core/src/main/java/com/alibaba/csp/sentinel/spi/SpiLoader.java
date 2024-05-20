@@ -63,6 +63,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <li>Load first-found or default instance.</li>
  * <li>Load instance by alias name or provider class.</li>
  * </ul>
+ * SpiLoader提供常用功能，例如：
+ * 加载所有 Provider 实例未排序/排序列表。
+ * 加载最高/最低优先级实例。
+ * 加载第一个找到的或默认的实例。
+ * 通过别名或提供程序类加载实例
  *
  * @author Eric Zhao
  * @author cdfive
@@ -95,18 +100,20 @@ public final class SpiLoader<S> {
     private final ConcurrentHashMap<String, S> singletonMap = new ConcurrentHashMap<>();
 
     // Whether this SpiLoader has been loaded, that is, loaded the Provider configuration file
+    // 是否加载了该SpiLoader，即加载了Provider配置文件
     private final AtomicBoolean loaded = new AtomicBoolean(false);
 
     // Default provider class
     private Class<? extends S> defaultClass = null;
 
     // The Service class, must be interface or abstract class
+    // 服务类，必须是接口类或抽象类
     private Class<S> service;
 
     /**
      * Create SpiLoader instance via Service class
      * Cached by className, and load from cache first
-     *
+     * 通过Service类Cached by className创建SpiLoader实例，并先从缓存加载
      * @param service Service class
      * @param <T>     Service type
      * @return SpiLoader instance
@@ -151,7 +158,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load all Provider instances of the specified Service
-     *
+     * 加载指定Service的所有Provider实例
      * @return Provider instances list
      */
     public List<S> loadInstanceList() {
@@ -162,7 +169,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load all Provider instances of the specified Service, sorted by order value in class's {@link Spi} annotation
-     *
+     * 加载指定Service的所有Provider实例，按照类的Spi注解中的顺序值排序
      * @return Sorted Provider instances list
      */
     public List<S> loadInstanceListSorted() {
@@ -173,7 +180,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load highest order priority instance, order value is defined in class's {@link Spi} annotation
-     *
+     * 加载最高顺序优先级实例，顺序值在类的Spi注解中定义
      * @return Provider instance of highest order priority
      */
     public S loadHighestPriorityInstance() {
@@ -189,7 +196,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load lowest order priority instance, order value is defined in class's {@link Spi} annotation
-     *
+     * 加载最低顺序优先级实例，顺序值在类的Spi注释中定义
      * @return Provider instance of lowest order priority
      */
     public S loadLowestPriorityInstance() {
@@ -205,7 +212,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load the first-found Provider instance
-     *
+     * 加载第一个找到的Provider实例
      * @return Provider instance of first-found specific
      */
     public S loadFirstInstance() {
@@ -222,7 +229,7 @@ public final class SpiLoader<S> {
 
     /**
      * Load the first-found Provider instance,if not found, return default Provider instance
-     *
+     * 加载第一个找到的Provider实例，如果没有找到，则返回默认的Provider实例
      * @return Provider instance
      */
     public S loadFirstInstanceOrDefault() {
@@ -240,7 +247,7 @@ public final class SpiLoader<S> {
     /**
      * Load default Provider instance
      * Provider class with @Spi(isDefault = true)
-     *
+     * 使用@Spi(isDefault = true)加载默认Provider实例Provider类
      * @return default Provider instance
      */
     public S loadDefaultInstance() {
@@ -314,17 +321,18 @@ public final class SpiLoader<S> {
         if (!loaded.compareAndSet(false, true)) {
             return;
         }
-
+        // 获取加载SPI文件的全限定名称
         String fullFileName = SPI_FILE_PREFIX + service.getName();
         ClassLoader classLoader;
-        if (SentinelConfig.shouldUseContextClassloader()) {
+        if (SentinelConfig.shouldUseContextClassloader()) { // 是否通过配置参数使用上下文类加载器
             classLoader = Thread.currentThread().getContextClassLoader();
-        } else {
+        } else {   // 获取当前规则构建器类加载
             classLoader = service.getClassLoader();
         }
         if (classLoader == null) {
             classLoader = ClassLoader.getSystemClassLoader();
         }
+        // 获取到所有资源文件
         Enumeration<URL> urls = null;
         try {
             urls = classLoader.getResources(fullFileName);
@@ -370,17 +378,18 @@ public final class SpiLoader<S> {
                     } catch (ClassNotFoundException e) {
                         fail("class " + line + " not found", e);
                     }
-
+                    // 判断是否已经加载
                     if (classMap.containsValue(clazz)) {
                         RecordLog.warn("duplicate class found,className=" + clazz.getName() + ",SPI configuration file[" + url + "]");
                         continue;
                     }
-
+                    // 判断是否是其实现类
                     if (!service.isAssignableFrom(clazz)) {
                         fail("class " + clazz.getName() + "is not subtype of " + service.getName() + ",SPI configuration file[" + url + "]");
                     }
 
                     classList.add(clazz);
+                    // 解析类的SPI注解
                     Spi spi = clazz.getAnnotation(Spi.class);
                     String aliasName = spi == null || "".equals(spi.value()) ? clazz.getName() : spi.value();
                     if (classMap.containsKey(aliasName)) {
@@ -389,7 +398,7 @@ public final class SpiLoader<S> {
                                 + existClass.getName() + ",SPI configuration file[" + url + "]");
                     }
                     classMap.put(aliasName, clazz);
-
+                    // 默认是实现类
                     if (spi != null && spi.isDefault()) {
                         if (defaultClass != null) {
                             fail("Found more than one default Provider,className=" + clazz.getName() + ",SPI configuration file[" + url + "]");
@@ -410,7 +419,7 @@ public final class SpiLoader<S> {
                 closeResources(in, br);
             }
         }
-
+        // 根据SPI设置顺序排序
         sortedClassList.addAll(classList);
         Collections.sort(sortedClassList, new Comparator<Class<? extends S>>() {
             @Override

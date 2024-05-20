@@ -28,7 +28,7 @@ import com.alibaba.csp.sentinel.util.function.BiConsumer;
 
 /**
  * Linked entry within current context.
- *
+ * 当前上下文中的链接条目。
  * @author jialiang.linjl
  * @author Eric Zhao
  */
@@ -37,8 +37,17 @@ class CtEntry extends Entry {
     protected Entry parent = null;
     protected Entry child = null;
 
+    /**
+     * 规则责任链
+     */
     protected ProcessorSlot<Object> chain;
+    /**
+     * 上下文对象
+     */
     protected Context context;
+    /**
+     * 退出Handler
+     */
     protected LinkedList<BiConsumer<Context, Entry>> exitHandlers;
 
     CtEntry(ResourceWrapper resourceWrapper, ProcessorSlot<Object> chain, Context context) {
@@ -109,10 +118,12 @@ class CtEntry extends Entry {
                 throw new ErrorEntryFreeException(errorMessage);
             } else {
                 // Go through the onExit hook of all slots.
+                // 调用流控规则链路的的所以 exit 方法
                 if (chain != null) {
                     chain.exit(context, resourceWrapper, count, args);
                 }
                 // Go through the existing terminate handlers (associated to this invocation).
+                // 调用现有的终止处理程序（与此调用关联）
                 callExitHandlersAndCleanUp(context);
 
                 // Restore the call stack.

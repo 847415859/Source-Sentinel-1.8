@@ -26,16 +26,19 @@ public class WindowWrap<T> {
 
     /**
      * Time length of a single window bucket in milliseconds.
+     * 单个窗口桶的时间长度（以毫秒为单位）。
      */
     private final long windowLengthInMs;
 
     /**
      * Start timestamp of the window in milliseconds.
+     * 窗口的开始时间戳（以毫秒为单位）
      */
     private long windowStart;
 
     /**
      * Statistic data.
+     * 统计数据
      */
     private T value;
 
@@ -79,7 +82,7 @@ public class WindowWrap<T> {
 
     /**
      * Check whether given timestamp is in current bucket.
-     *
+     * 检查给定的时间戳是否在当前桶中。
      * @param timeMillis valid timestamp in ms
      * @return true if the given time is in current bucket, otherwise false
      * @since 1.5.0

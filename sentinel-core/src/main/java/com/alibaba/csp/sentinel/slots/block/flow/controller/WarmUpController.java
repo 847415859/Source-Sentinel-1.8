@@ -22,10 +22,12 @@ import com.alibaba.csp.sentinel.node.Node;
 import com.alibaba.csp.sentinel.slots.block.flow.TrafficShapingController;
 
 /**
+ * <image src ="../../../../../../../../../../../../images/Warm-Up.png"/>
  * <p>
  * The principle idea comes from Guava. However, the calculation of Guava is
  * rate-based, which means that we need to translate rate to QPS.
  * </p>
+ * 基本思想来自 Guava。但是Guava的计算是基于速率的，这意味着我们需要将速率转换为QPS。
  *
  * <p>
  * Requests arriving at the pulse may drag down long idle systems even though it
@@ -33,6 +35,8 @@ import com.alibaba.csp.sentinel.slots.block.flow.TrafficShapingController;
  * scenarios that require extra time for initialization, e.g. DB establishes a connection,
  * connects to a remote service, and so on. That’s why we need “warm up”.
  * </p>
+ * 尽管在稳定期间具有更大的处理能力，但到达脉冲的请求可能会拖累长时间空闲的系统。
+ * 通常发生在需要额外时间初始化的场景，例如DB建立连接、连接远程服务等。这就是为什么我们需要“热身”。
  *
  * <p>
  * Sentinel's "warm-up" implementation is based on the Guava's algorithm.
@@ -41,6 +45,8 @@ import com.alibaba.csp.sentinel.slots.block.flow.TrafficShapingController;
  * controlling the count of incoming requests per second without calculating its interval,
  * which resembles token bucket algorithm.
  * </p>
+ * Sentinel 的“预热”实现是基于 Guava 的算法。不过Guava的实现重点在于调整请求间隔，这与漏桶类似。
+ * Sentinel更注重控制每秒传入请求的数量，而不计算其间隔，类似于令牌桶算法。
  *
  * <p>
  * The remaining tokens in the bucket is used to measure the system utility.
@@ -50,6 +56,8 @@ import com.alibaba.csp.sentinel.slots.block.flow.TrafficShapingController;
  * bucket, the lower the utilization of the system; when the token in the token
  * bucket is above a certain threshold, we call it in a "saturation" state.
  * </p>
+ * Sentinel 的“预热”实现是基于 Guava 的算法。不过Guava的实现重点在于调整请求间隔，这与漏桶类似。
+ * Sentinel更注重控制每秒传入请求的数量，而不计算其间隔，类似于令牌桶算法。
  *
  * <p>
  * Base on Guava’s theory, there is a linear equation we can write this in the
@@ -58,14 +66,19 @@ import com.alibaba.csp.sentinel.slots.block.flow.TrafficShapingController;
  * our cold (minimum) rate to our stable (maximum) rate, x (or q) is the
  * occupied token.
  * </p>
- *
+ * 根据 Guava 的理论，有一个线性方程，我们可以将其写成 y = m * x + b 的形式，其中 y（又名 y(x)）或 qps(q)）是给定饱和周期的预期 QPS（例如3分钟内），
+ * m是从我们的冷（最小）速率到我们稳定（最大）速率的变化率，
+ * x（或q）是占用的令牌。
  * @author jialiang.linjl
  */
 public class WarmUpController implements TrafficShapingController {
 
     protected double count;
+    // 冷因子
     private int coldFactor;
+    // 警告token数
     protected int warningToken = 0;
+    // 最大token数
     private int maxToken;
     protected double slope;
 
@@ -80,6 +93,11 @@ public class WarmUpController implements TrafficShapingController {
         construct(count, warmUpPeriodInSec, 3);
     }
 
+    /**
+     * @param count             阈值
+     * @param warmUpPeriodInSec 预热时长(秒)
+     * @param coldFactor        冷因子
+     */
     private void construct(double count, int warmUpPeriodInSec, int coldFactor) {
 
         if (coldFactor <= 1) {
@@ -113,7 +131,7 @@ public class WarmUpController implements TrafficShapingController {
     @Override
     public boolean canPass(Node node, int acquireCount, boolean prioritized) {
         long passQps = (long) node.passQps();
-
+        // 获取之前的qps
         long previousQps = (long) node.previousPassQps();
         syncToken(previousQps);
 

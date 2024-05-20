@@ -19,7 +19,7 @@ import com.alibaba.csp.sentinel.context.Context;
 
 /**
  * A container of some process and ways of notification when the process is finished.
- *
+ * 一些进程的容器以及进程完成时的通知方式
  * @author qinan.qn
  * @author jialiang.linjl
  * @author leyou(lihao)
@@ -57,7 +57,7 @@ public interface ProcessorSlot<T> {
 
     /**
      * Exit of this slot.
-     *
+     * 退出流控规则链
      * @param context         current {@link Context}
      * @param resourceWrapper current resource
      * @param count           tokens needed

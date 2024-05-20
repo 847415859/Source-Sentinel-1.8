@@ -16,6 +16,7 @@
 package com.alibaba.csp.sentinel;
 
 /**
+ * 资源类型
  * @author Eric Zhao
  * @since 1.7.0
  */

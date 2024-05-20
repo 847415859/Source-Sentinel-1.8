@@ -32,12 +32,15 @@ import com.alibaba.csp.sentinel.util.function.BiConsumer;
  */
 public abstract class AbstractCircuitBreaker implements CircuitBreaker {
 
+    // 降级规则
     protected final DegradeRule rule;
+    // 统计时长
     protected final int recoveryTimeoutMs;
 
     private final EventObserverRegistry observerRegistry;
-
+    // 熔断器状态
     protected final AtomicReference<State> currentState = new AtomicReference<>(State.CLOSED);
+    // 下一次半开释放请求的时间
     protected volatile long nextRetryTimestamp;
 
     public AbstractCircuitBreaker(DegradeRule rule) {
@@ -66,12 +69,12 @@ public abstract class AbstractCircuitBreaker implements CircuitBreaker {
 
     @Override
     public boolean tryPass(Context context) {
-        // Template implementation.
+        // 在熔断器关闭情况下所有的请求都不拦截
         if (currentState.get() == State.CLOSED) {
             return true;
         }
         if (currentState.get() == State.OPEN) {
-            // For half-open state we allow a request for probing.
+            // 对于半开放状态，我们允许探测请求。
             return retryTimeoutArrived() && fromOpenToHalfOpen(context);
         }
         return false;
@@ -82,6 +85,10 @@ public abstract class AbstractCircuitBreaker implements CircuitBreaker {
      */
     abstract void resetStat();
 
+    /**
+     * 超过了 熔断截止的事件 （熔断那一刻的时间戳+熔断的时长）
+     * @return
+     */
     protected boolean retryTimeoutArrived() {
         return TimeUtil.currentTimeMillis() >= nextRetryTimestamp;
     }
@@ -93,6 +100,7 @@ public abstract class AbstractCircuitBreaker implements CircuitBreaker {
     protected boolean fromCloseToOpen(double snapshotValue) {
         State prev = State.CLOSED;
         if (currentState.compareAndSet(prev, State.OPEN)) {
+            // 计算熔断窗口值（为下次半开状态）
             updateNextRetryTimestamp();
 
             notifyObservers(prev, State.OPEN, snapshotValue);
@@ -101,6 +109,11 @@ public abstract class AbstractCircuitBreaker implements CircuitBreaker {
         return false;
     }
 
+    /**
+     * 将熔断状态有 Open -> HalfOpen
+     * @param context
+     * @return
+     */
     protected boolean fromOpenToHalfOpen(Context context) {
         if (currentState.compareAndSet(State.OPEN, State.HALF_OPEN)) {
             notifyObservers(State.OPEN, State.HALF_OPEN, null);

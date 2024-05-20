@@ -28,14 +28,14 @@ public interface CircuitBreaker {
 
     /**
      * Get the associated circuit breaking rule.
-     *
+     * 获取熔断规则
      * @return associated circuit breaking rule
      */
     DegradeRule getRule();
 
     /**
      * Acquires permission of an invocation only if it is available at the time of invoking.
-     *
+     * 仅当调用时可用时才获取调用权限
      * @param context context of current invocation
      * @return {@code true} if permission was acquired and {@code false} otherwise
      */
@@ -43,13 +43,14 @@ public interface CircuitBreaker {
 
     /**
      * Get current state of the circuit breaker.
-     *
+     * 当前熔断器的状态
      * @return current state of the circuit breaker
      */
     State currentState();
 
     /**
      * <p>Record a completed request with the context and handle state transformation of the circuit breaker.</p>
+     * 使用上下文记录已完成的请求并处理断路器的状态转换
      * <p>Called when a <strong>passed</strong> invocation finished.</p>
      *
      * @param context context of current invocation
@@ -58,6 +59,7 @@ public interface CircuitBreaker {
 
     /**
      * Circuit breaker state.
+     * 熔断器的状态
      */
     enum State {
         /**
@@ -70,6 +72,9 @@ public interface CircuitBreaker {
          * will re-transform to the {@code OPEN} state and wait for the next recovery time point;
          * otherwise the resource will be regarded as "recovered" and the circuit breaker
          * will cease cutting off requests and transform to {@code CLOSED} state.
+         * 在 {@code HALF_OPEN} 状态下，断路器将允许“探测”调用。如果根据策略调用异常（例如速度慢），
+         * 断路器将重新转换到{@code OPEN}状态并等待下一个恢复时间点；否则资源将被视为“已恢复”，
+         * 断路器将停止切断请求并转换为 {@code CLOSED} 状态。
          */
         HALF_OPEN,
         /**

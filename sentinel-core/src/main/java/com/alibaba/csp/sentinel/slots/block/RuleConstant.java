@@ -23,29 +23,37 @@ import com.alibaba.csp.sentinel.node.IntervalProperty;
  */
 public final class RuleConstant {
 
+    /**
+     * 限流阈值类型，QPS 模式（1）或并发线程数模式（0）
+     */
     public static final int FLOW_GRADE_THREAD = 0;
     public static final int FLOW_GRADE_QPS = 1;
 
     public static final int DEGRADE_GRADE_RT = 0;
     /**
      * Degrade by biz exception ratio in the current {@link IntervalProperty#INTERVAL} second(s).
+     * 降级的异常比例
      */
     public static final int DEGRADE_GRADE_EXCEPTION_RATIO = 1;
     /**
      * Degrade by biz exception count in the last 60 seconds.
+     * 降级异常数
      */
     public static final int DEGRADE_GRADE_EXCEPTION_COUNT = 2;
 
     public static final int DEGRADE_DEFAULT_SLOW_REQUEST_AMOUNT = 5;
     public static final int DEGRADE_DEFAULT_MIN_REQUEST_AMOUNT = 5;
 
+    // 认证模式：黑白名单
     public static final int AUTHORITY_WHITE = 0;
     public static final int AUTHORITY_BLACK = 1;
 
+    // 流控模式
     public static final int STRATEGY_DIRECT = 0;
     public static final int STRATEGY_RELATE = 1;
     public static final int STRATEGY_CHAIN = 2;
 
+    // 流控规则
     public static final int CONTROL_BEHAVIOR_DEFAULT = 0;
     public static final int CONTROL_BEHAVIOR_WARM_UP = 1;
     public static final int CONTROL_BEHAVIOR_RATE_LIMITER = 2;

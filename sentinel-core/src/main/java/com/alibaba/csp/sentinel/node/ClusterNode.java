@@ -30,6 +30,9 @@ import com.alibaba.csp.sentinel.util.AssertUtil;
  * and so on. Same resource shares the same {@link ClusterNode} globally, no matter in which
  * {@link com.alibaba.csp.sentinel.context.Context}.
  * </p>
+ * 该类存储资源的运行时统计摘要，包括 rt、线程数、qps 等。相同的资源在全局共享同一个ClusterNode ，
+ * 无论在哪个com.alibaba.csp.sentinel.context.Context 。
+ *
  * <p>
  * To distinguish invocation from different origin (declared in
  * {@link ContextUtil#enter(String name, String origin)}),
@@ -38,6 +41,9 @@ import com.alibaba.csp.sentinel.util.AssertUtil;
  * origin.<br/>
  * Note that 'origin' usually is Service Consumer's app name.
  * </p>
+ * 为了区分来自不同来源的调用（在 {@link ContextUtilenter(String name, String origin)} 中声明），一个 {@link ClusterNode}
+ * 保存一个 {@link originCountMap}，该映射保存不同来源的 {@link StatisticNode}。
+ * 使用 {@link getOrCreateOriginNode(String)} 获取特定来源的 {@link Node}。<br> 请注意，“origin”通常是服务使用者的应用程序名称。
  *
  * @author qinan.qn
  * @author jialiang.linjl

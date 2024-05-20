@@ -22,7 +22,7 @@ import com.alibaba.csp.sentinel.slots.system.SystemRule;
 
 /**
  * The basic interface for recording statistics and performing rule checking for resources.
- *
+ * 记录资源统计信息和执行规则检查的基本接口。
  * @author qinan.qn
  * @author jialiang.linjl
  * @author leyou

@@ -45,6 +45,12 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  * </ul>
  * </p>
  *
+ * 专用于实时统计的处理器插槽。进入这个槽位时，我们需要单独统计以下信息：
+ * 1.ClusterNode ：统计某个集群节点的资源ID。
+ * 2.源节点：来自不同调用者/源的集群节点的统计信息。
+ * 3.DefaultNode ：特定上下文中特定资源名称的统计信息。
+ * 4.最后对所有入口进行总和统计。
+ *
  * @author jialiang.linjl
  * @author Eric Zhao
  */
@@ -57,13 +63,13 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
         try {
             // Do some checking.
             fireEntry(context, resourceWrapper, node, count, prioritized, args);
-
+            // 请求已通过，添加线程计数和通过计数。
             // Request passed, add thread count and pass count.
             node.increaseThreadNum();
             node.addPassRequest(count);
 
             if (context.getCurEntry().getOriginNode() != null) {
-                // Add count for origin node.
+                // 添加原始节点的计数。
                 context.getCurEntry().getOriginNode().increaseThreadNum();
                 context.getCurEntry().getOriginNode().addPassRequest(count);
             }
@@ -78,7 +84,7 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
             for (ProcessorSlotEntryCallback<DefaultNode> handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) {
                 handler.onPass(context, resourceWrapper, node, count, args);
             }
-        } catch (PriorityWaitException ex) {
+        } catch (PriorityWaitException ex) { // 权限限制
             node.increaseThreadNum();
             if (context.getCurEntry().getOriginNode() != null) {
                 // Add count for origin node.
@@ -87,17 +93,19 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
             if (resourceWrapper.getEntryType() == EntryType.IN) {
                 // Add count for global inbound entry node for global statistics.
+                // 添加全局入站入口节点计数，用于全局统计。
                 Constants.ENTRY_NODE.increaseThreadNum();
             }
             // Handle pass event with registered entry callback handlers.
             for (ProcessorSlotEntryCallback<DefaultNode> handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) {
                 handler.onPass(context, resourceWrapper, node, count, args);
             }
-        } catch (BlockException e) {
+        } catch (BlockException e) {    // 被限流
             // Blocked, set block exception to current entry.
+            // 已阻止，将阻止异常设置为当前条目。
             context.getCurEntry().setBlockError(e);
 
-            // Add block count.
+            // 增加被规则限流的调用数
             node.increaseBlockQps(count);
             if (context.getCurEntry().getOriginNode() != null) {
                 context.getCurEntry().getOriginNode().increaseBlockQps(count);
@@ -105,10 +113,12 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
             if (resourceWrapper.getEntryType() == EntryType.IN) {
                 // Add count for global inbound entry node for global statistics.
+                // 添加全局入站入口节点计数，用于全局统计。
                 Constants.ENTRY_NODE.increaseBlockQps(count);
             }
 
             // Handle block event with registered entry callback handlers.
+            // 使用注册的条目回调处理程序处理块事件
             for (ProcessorSlotEntryCallback<DefaultNode> handler : StatisticSlotCallbackRegistry.getEntryCallbacks()) {
                 handler.onBlocked(e, context, resourceWrapper, node, count, args);
             }
@@ -125,9 +135,10 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
     @Override
     public void exit(Context context, ResourceWrapper resourceWrapper, int count, Object... args) {
         Node node = context.getCurNode();
-
+        // 执行成功了
         if (context.getCurEntry().getBlockError() == null) {
             // Calculate response time (use completeStatTime as the time of completion).
+            // 计算响应时间
             long completeStatTime = TimeUtil.currentTimeMillis();
             context.getCurEntry().setCompleteTimestamp(completeStatTime);
             long rt = completeStatTime - context.getCurEntry().getCreateTimestamp();
@@ -135,6 +146,7 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
             Throwable error = context.getCurEntry().getError();
 
             // Record response time and success count.
+            // 记录响应时间和成功的次数
             recordCompleteFor(node, count, rt, error);
             recordCompleteFor(context.getCurEntry().getOriginNode(), count, rt, error);
             if (resourceWrapper.getEntryType() == EntryType.IN) {

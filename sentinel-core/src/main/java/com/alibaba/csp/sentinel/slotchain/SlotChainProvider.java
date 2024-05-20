@@ -39,7 +39,7 @@ public final class SlotChainProvider {
         if (slotChainBuilder != null) {
             return slotChainBuilder.build();
         }
-
+        // 解析生成规则链条的SPI构建器
         // Resolve the slot chain builder SPI.
         slotChainBuilder = SpiLoader.of(SlotChainBuilder.class).loadFirstInstanceOrDefault();
 
@@ -51,6 +51,7 @@ public final class SlotChainProvider {
             RecordLog.info("[SlotChainProvider] Global slot chain builder resolved: {}",
                 slotChainBuilder.getClass().getCanonicalName());
         }
+        // 通过 规则链条构建器生成规则链条
         return slotChainBuilder.build();
     }
 

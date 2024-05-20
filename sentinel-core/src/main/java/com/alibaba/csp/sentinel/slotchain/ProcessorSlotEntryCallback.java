@@ -20,7 +20,7 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 
 /**
  * Callback for entering {@link com.alibaba.csp.sentinel.slots.statistic.StatisticSlot} (passed and blocked).
- *
+ * 进入com.alibaba.csp.sentinel.slots.statistic.StatisticSlot的回调（通过和阻塞）。
  * @author Eric Zhao
  * @since 0.2.0
  */

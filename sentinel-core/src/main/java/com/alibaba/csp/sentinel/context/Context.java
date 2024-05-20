@@ -58,6 +58,7 @@ public class Context {
 
     /**
      * Context name.
+     *  资源名
      */
     private final String name;
 
@@ -68,14 +69,17 @@ public class Context {
 
     /**
      * Current processing entry.
+     * 当前执行的 Entry
      */
     private Entry curEntry;
 
     /**
      * The origin of this context (usually indicate different invokers, e.g. service consumer name or origin IP).
+     * 该上下文的来源（通常指示不同的调用者，例如服务使用者名称或来源 IP）。
      */
     private String origin = "";
 
+    // 是否是异步
     private final boolean async;
 
     /**

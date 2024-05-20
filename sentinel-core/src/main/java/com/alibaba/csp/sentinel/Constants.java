@@ -56,22 +56,26 @@ public final class Constants {
 
     /**
      * Global ROOT statistic node that represents the universal parent node.
+     * 全局ROOT统计节点，代表通用父节点
      */
     public final static DefaultNode ROOT = new EntranceNode(new StringResourceWrapper(ROOT_ID, EntryType.IN),
         new ClusterNode(ROOT_ID, ResourceTypeConstants.COMMON));
 
     /**
      * Global statistic node for inbound traffic. Usually used for {@code SystemRule} checking.
+     * 入站流量的全局统计节点。通常用于SystemRule检查。
      */
     public final static ClusterNode ENTRY_NODE = new ClusterNode(TOTAL_IN_RESOURCE_NAME, ResourceTypeConstants.COMMON);
 
     /**
      * The global switch for Sentinel.
+     * Sentinel 开关是否开启
      */
     public static volatile boolean ON = true;
 
     /**
      * Order of default processor slots
+     * 规则链路的顺序
      */
     public static final int ORDER_NODE_SELECTOR_SLOT = -10000;
     public static final int ORDER_CLUSTER_BUILDER_SLOT = -9000;

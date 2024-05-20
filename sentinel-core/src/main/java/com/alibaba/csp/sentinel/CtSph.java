@@ -120,33 +120,38 @@ public class CtSph implements Sph {
         if (context instanceof NullContext) {
             // The {@link NullContext} indicates that the amount of context has exceeded the threshold,
             // so here init the entry only. No rule checking will be done.
+            // NullContext 表示上下文数量已超过阈值，因此这里仅初始化该条目。不会进行任何规则检查。
             return new CtEntry(resourceWrapper, null, context);
         }
 
         if (context == null) {
-            // Using default context.
+            // 创建上下文对象
             context = InternalContextUtil.internalEnter(Constants.CONTEXT_DEFAULT_NAME);
         }
 
         // Global switch is close, no rule checking will do.
+        // 全局开关关闭，没有规则检查。
         if (!Constants.ON) {
             return new CtEntry(resourceWrapper, null, context);
         }
-
+        // 构建规则检查过滤器链
         ProcessorSlot<Object> chain = lookProcessChain(resourceWrapper);
 
         /*
          * Means amount of resources (slot chain) exceeds {@link Constants.MAX_SLOT_CHAIN_SIZE},
          * so no rule checking will be done.
+         * 表示资源(槽链)的数量超过{@link常量。MAX_SLOT_CHAIN_SIZE}, 因此不会进行规则检查。
          */
         if (chain == null) {
             return new CtEntry(resourceWrapper, null, context);
         }
 
+        // Sentinel规则责任链开始调用执行
         Entry e = new CtEntry(resourceWrapper, chain, context, count, args);
         try {
             chain.entry(context, resourceWrapper, null, count, prioritized, args);
         } catch (BlockException e1) {
+            // 如果被规则限制，则调用退出流程
             e.exit(count, args);
             throw e1;
         } catch (Throwable e1) {
@@ -158,14 +163,15 @@ public class CtSph implements Sph {
 
     /**
      * Do all {@link Rule}s checking about the resource.
-     *
+     * 对资源进行所有Rule检查。
      * <p>Each distinct resource will use a {@link ProcessorSlot} to do rules checking. Same resource will use
      * same {@link ProcessorSlot} globally. </p>
-     *
+     * 每个不同的资源将使用ProcessorSlot来进行规则检查。相同的资源将在全局范围内使用相同的ProcessorSlot 。
      * <p>Note that total {@link ProcessorSlot} count must not exceed {@link Constants#MAX_SLOT_CHAIN_SIZE},
      * otherwise no rules checking will do. In this condition, all requests will pass directly, with no checking
      * or exception.</p>
-     *
+     * 注意总{@link ProcessorSlot}计数不能超过{@link Constants#MAX_SLOT_CHAIN_SIZE}，否则没有规则检查。在这种情况下，所有请求都将直接通过，不进行检查
+     * 或例外
      * @param resourceWrapper resource name
      * @param count           tokens needed
      * @param args            arguments of user method call
@@ -179,19 +185,21 @@ public class CtSph implements Sph {
     /**
      * Get {@link ProcessorSlotChain} of the resource. new {@link ProcessorSlotChain} will
      * be created if the resource doesn't relate one.
-     *
+     * 获取资源的ProcessorSlotChain 。如果资源不相关，则将创建新的ProcessorSlotChain 。
      * <p>Same resource({@link ResourceWrapper#equals(Object)}) will share the same
      * {@link ProcessorSlotChain} globally, no matter in which {@link Context}.<p/>
-     *
      * <p>
+     * 相同的资源（ResourceWrapper.equals(Object) ）将在全局共享相同的ProcessorSlotChain ，无论在哪个Context中。
      * Note that total {@link ProcessorSlot} count must not exceed {@link Constants#MAX_SLOT_CHAIN_SIZE},
      * otherwise null will return.
+     * 请注意，{@link ProcessorSlot} 总数不得超过 {@link ConstantsMAX_SLOT_CHAIN_SIZE}，否则将返回 null。
      * </p>
      *
      * @param resourceWrapper target resource
      * @return {@link ProcessorSlotChain} of the resource
      */
     ProcessorSlot<Object> lookProcessChain(ResourceWrapper resourceWrapper) {
+        // 获取缓存中的规则链条
         ProcessorSlotChain chain = chainMap.get(resourceWrapper);
         if (chain == null) {
             synchronized (LOCK) {
@@ -201,7 +209,7 @@ public class CtSph implements Sph {
                     if (chainMap.size() >= Constants.MAX_SLOT_CHAIN_SIZE) {
                         return null;
                     }
-
+                    // 构建一个新的规则链条
                     chain = SlotChainProvider.newSlotChain();
                     Map<ResourceWrapper, ProcessorSlotChain> newMap = new HashMap<ResourceWrapper, ProcessorSlotChain>(
                         chainMap.size() + 1);

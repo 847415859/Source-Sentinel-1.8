@@ -21,12 +21,15 @@ import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Represents metrics data in a period of time span.
- *
+ * 指标桶
  * @author jialiang.linjl
  * @author Eric Zhao
  */
 public class MetricBucket {
 
+    /**
+     * 指标事件桶列表
+     */
     private final LongAdder[] counters;
 
     private volatile long minRt;

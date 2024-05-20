@@ -30,7 +30,8 @@ import com.alibaba.csp.sentinel.spi.Spi;
 
 /**
  * A {@link ProcessorSlot} dedicates to circuit breaking.
- *
+ * ProcessorSlot专用于熔断
+ * <image src="../../../../../../../../../../../images/熔断规则.png"/>
  * @author Carpenter Lee
  * @author Eric Zhao
  */
@@ -46,6 +47,7 @@ public class DegradeSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
     }
 
     void performChecking(Context context, ResourceWrapper r) throws BlockException {
+        // 获取所有的熔断器
         List<CircuitBreaker> circuitBreakers = DegradeRuleManager.getCircuitBreakers(r.getName());
         if (circuitBreakers == null || circuitBreakers.isEmpty()) {
             return;
@@ -60,10 +62,12 @@ public class DegradeSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
     @Override
     public void exit(Context context, ResourceWrapper r, int count, Object... args) {
         Entry curEntry = context.getCurEntry();
+        // 执行异常
         if (curEntry.getBlockError() != null) {
             fireExit(context, r, count, args);
             return;
         }
+        // 熔断器流程
         List<CircuitBreaker> circuitBreakers = DegradeRuleManager.getCircuitBreakers(r.getName());
         if (circuitBreakers == null || circuitBreakers.isEmpty()) {
             fireExit(context, r, count, args);

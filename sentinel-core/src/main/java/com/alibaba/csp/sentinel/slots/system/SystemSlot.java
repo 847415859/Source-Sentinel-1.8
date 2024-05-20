@@ -24,8 +24,15 @@ import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.spi.Spi;
 
 /**
- * A {@link ProcessorSlot} that dedicates to {@link SystemRule} checking.
+ * A {@link ProcessorSlot} that dedicates to {@link SystemRule} checking.<br/>
+ * 系统规则校验
  *
+ * <image src="../../../../../../../../../../images/系统规则.png"/>
+ * <li>系统负载</li>
+ * <li>RT(平均响应时间)</li>
+ * <li>线程数</li>
+ * <li>入口QPS</li>
+ * <li>CPU使用率</li>
  * @author jialiang.linjl
  * @author leyou
  */

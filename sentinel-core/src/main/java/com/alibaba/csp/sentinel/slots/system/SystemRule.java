@@ -31,6 +31,10 @@ import com.alibaba.csp.sentinel.slots.block.AbstractRule;
  * To set the threshold appropriately, performance test may be needed.
  * </p>
  *
+ * Sentinel系统规则使入站流量和容量满足。它考虑了请求的平均 RT、QPS 和线程数。它还提供了系统负载的测量，但仅在 Linux 上可用。
+ * 我们建议协调highestSystemLoad 、 qps 、 avgRt和maxThread ，以确保您的系统在安全级别运行。
+ * 为了适当地设置阈值，可能需要进行性能测试
+ *
  * @author jialiang.linjl
  * @author Carpenter Lee
  * @see SystemRuleManager

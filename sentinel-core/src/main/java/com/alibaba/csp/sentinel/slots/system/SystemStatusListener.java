@@ -26,16 +26,20 @@ import com.alibaba.csp.sentinel.util.StringUtil;
 import com.sun.management.OperatingSystemMXBean;
 
 /**
+ * 系统状态监听器
+ * 统计系统信息
  * @author jialiang.linjl
  */
 public class SystemStatusListener implements Runnable {
-
+    // 系统负载
     volatile double currentLoad = -1;
+    // cpu 使用率
     volatile double currentCpuUsage = -1;
 
     volatile String reason = StringUtil.EMPTY;
-
+    // 程序CPU时间
     volatile long processCpuTime = 0;
+    // 程序启动时间
     volatile long processUpTime = 0;
 
     public double getSystemAverageLoad() {

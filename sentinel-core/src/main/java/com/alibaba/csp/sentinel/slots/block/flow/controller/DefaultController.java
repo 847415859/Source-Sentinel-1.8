@@ -33,6 +33,9 @@ public class DefaultController implements TrafficShapingController {
     private static final int DEFAULT_AVG_USED_TOKENS = 0;
 
     private double count;
+    /**
+     * 限流阈值类型，QPS 模式（1）或并发线程数模式（0）
+     */
     private int grade;
 
     public DefaultController(double count, int grade) {
@@ -45,21 +48,33 @@ public class DefaultController implements TrafficShapingController {
         return canPass(node, acquireCount, false);
     }
 
+    /**
+     * 是否可以通过
+     * @param node resource node
+     * @param acquireCount count to acquire
+     * @param prioritized whether the request is prioritized  是否允许请求优先
+     * @return
+     */
     @Override
     public boolean canPass(Node node, int acquireCount, boolean prioritized) {
+        // 获取当前阈值类型对应的值（并发线程 || qps）
         int curCount = avgUsedTokens(node);
+        // 超过阈值
         if (curCount + acquireCount > count) {
+            // 允许优先请求 && QPS
             if (prioritized && grade == RuleConstant.FLOW_GRADE_QPS) {
                 long currentTime;
                 long waitInMs;
                 currentTime = TimeUtil.currentTimeMillis();
                 waitInMs = node.tryOccupyNext(currentTime, acquireCount, count);
+                // 等待时间小于占用超时时间
                 if (waitInMs < OccupyTimeoutProperty.getOccupyTimeout()) {
                     node.addWaitingRequest(currentTime + waitInMs, acquireCount);
                     node.addOccupiedPass(acquireCount);
                     sleep(waitInMs);
 
                     // PriorityWaitException indicates that the request will pass after waiting for {@link @waitInMs}.
+                    // PriorityWaitException 表示等待 {@link @waitInMs} 后请求将通过。
                     throw new PriorityWaitException(waitInMs);
                 }
             }
@@ -72,6 +87,7 @@ public class DefaultController implements TrafficShapingController {
         if (node == null) {
             return DEFAULT_AVG_USED_TOKENS;
         }
+        // 阈值类型   0-并发线程模式 1-QPS
         return grade == RuleConstant.FLOW_GRADE_THREAD ? node.curThreadNum() : (int)(node.passQps());
     }
 

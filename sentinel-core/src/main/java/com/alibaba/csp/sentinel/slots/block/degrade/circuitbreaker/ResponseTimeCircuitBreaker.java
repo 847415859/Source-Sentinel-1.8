@@ -28,6 +28,9 @@ import com.alibaba.csp.sentinel.util.AssertUtil;
 import com.alibaba.csp.sentinel.util.TimeUtil;
 
 /**
+ * 慢调用比例
+ *  <image src="../../../../../../../../../../../../images/慢调用规则.png"/>
+ *
  * @author Eric Zhao
  * @since 1.8.0
  */
@@ -61,8 +64,12 @@ public class ResponseTimeCircuitBreaker extends AbstractCircuitBreaker {
         slidingCounter.currentWindow().value().reset();
     }
 
+    /**
+     * @param context context of current invocation
+     */
     @Override
     public void onRequestComplete(Context context) {
+        // 慢调用比例
         SlowRequestCounter counter = slidingCounter.currentWindow().value();
         Entry entry = context.getCurEntry();
         if (entry == null) {
@@ -73,6 +80,7 @@ public class ResponseTimeCircuitBreaker extends AbstractCircuitBreaker {
             completeTime = TimeUtil.currentTimeMillis();
         }
         long rt = completeTime - entry.getCreateTimestamp();
+        // 超过设定最大RT
         if (rt > maxAllowedRt) {
             counter.slowCount.add(1);
         }
@@ -81,32 +89,40 @@ public class ResponseTimeCircuitBreaker extends AbstractCircuitBreaker {
         handleStateChangeWhenThresholdExceeded(rt);
     }
 
+    /**
+     * 超过阈值，处理熔断器的状态
+     * @param rt
+     */
     private void handleStateChangeWhenThresholdExceeded(long rt) {
         if (currentState.get() == State.OPEN) {
             return;
         }
-        
+
         if (currentState.get() == State.HALF_OPEN) {
             // In detecting request
             // TODO: improve logic for half-open recovery
             if (rt > maxAllowedRt) {
+                // 打开熔断器
                 fromHalfOpenToOpen(1.0d);
             } else {
+                // 关闭熔断器
                 fromHalfOpenToClose();
             }
             return;
         }
 
         List<SlowRequestCounter> counters = slidingCounter.values();
-        long slowCount = 0;
-        long totalCount = 0;
+        long slowCount = 0;     // 慢调用次数
+        long totalCount = 0;    // 总调用次数
         for (SlowRequestCounter counter : counters) {
             slowCount += counter.slowCount.sum();
             totalCount += counter.totalCount.sum();
         }
+        // 总调用次数 < 最小请求数
         if (totalCount < minRequestAmount) {
             return;
         }
+        // 慢调用比例
         double currentRatio = slowCount * 1.0d / totalCount;
         if (currentRatio > maxSlowRequestRatio) {
             transformToOpen(currentRatio);

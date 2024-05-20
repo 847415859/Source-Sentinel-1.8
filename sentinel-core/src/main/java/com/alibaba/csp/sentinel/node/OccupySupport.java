@@ -24,18 +24,20 @@ public interface OccupySupport {
     /**
      * Try to occupy latter time windows' tokens. If occupy success, a value less than
      * {@code occupyTimeout} in {@link OccupyTimeoutProperty} will be return.
-     *
+     * 尝试占用后面时间窗口的令牌。如果占用成功，则返回小于OccupyTimeoutProperty中的occupyTimeout的值。
      * <p>
      * Each time we occupy tokens of the future window, current thread should sleep for the
      * corresponding time for smoothing QPS. We can't occupy tokens of the future with unlimited,
      * the sleep time limit is {@code occupyTimeout} in {@link OccupyTimeoutProperty}.
      * </p>
-     *
-     * @param currentTime  current time millis.
+     * 每次我们占用未来窗口的令牌时，当前线程都应该休眠相应的时间以平滑QPS。我们不能无限制地占用未来的代币，
+     * 睡眠时间限制是OccupyTimeoutProperty中的occupyTimeout 。
+     * @param currentTime  current time millis.         当前时间
      * @param acquireCount tokens count to acquire.
      * @param threshold    qps threshold.
      * @return time should sleep. Time >= {@code occupyTimeout} in {@link OccupyTimeoutProperty} means
      * occupy fail, in this case, the request should be rejected immediately.
+     * 有时间就应该睡觉。 {@link OccupyTimeoutProperty} 中的 Time >= {@code acquireTimeout} 表示占用失败，在这种情况下，请求应立即被拒绝。
      */
     long tryOccupyNext(long currentTime, int acquireCount, double threshold);
 

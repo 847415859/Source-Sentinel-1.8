@@ -32,7 +32,12 @@ import com.alibaba.csp.sentinel.slots.system.SystemRuleManager;
  * surrounded by an entry. The requests to this resource will be blocked if any
  * criteria is met, eg. when any {@link Rule}'s threshold is exceeded. Once blocked,
  * {@link SphO}#entry() will return false.
- *
+ * 从概念上讲，需要保护的物理或逻辑资源应该被条目包围。如果满足任何条件，例如，对此资源的请求将被阻止。
+ * 当超过任何Rule的阈值时。一旦被阻止， SphO #entry() 将返回 false。
+ * 要配置条件，我们可以使用XXXRuleManager.loadRules()添加规则。例如。
+ * FlowRuleManager.loadRules(List) 、
+ * DegradeRuleManager.loadRules(List) 、
+ * SystemRuleManager.loadRules(List) 。
  * <p>
  * To configure the criteria, we can use <code>XXXRuleManager.loadRules()</code> to add rules. eg.
  * {@link FlowRuleManager#loadRules(List)}, {@link DegradeRuleManager#loadRules(List)},

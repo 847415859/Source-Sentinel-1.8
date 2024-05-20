@@ -240,7 +240,7 @@ public final class SentinelConfig {
 
     /**
      * <p>Get the max RT value that Sentinel could accept for system BBR strategy.</p>
-     *
+     * 获取Sentinel对于系统BBR策略可以接受的最大RT值。
      * @return the max allowed RT value
      * @since 1.4.1
      */
@@ -333,7 +333,7 @@ public final class SentinelConfig {
     }
     /**
      * Whether use context classloader via config parameter
-     *
+     * 是否通过配置参数使用上下文类加载器
      * @return Whether use context classloader
      */
     public static boolean shouldUseContextClassloader() {

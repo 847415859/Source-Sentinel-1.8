@@ -23,7 +23,7 @@ import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 
 /**
  * The entry for asynchronous resources.
- *
+ * 异步资源 Entry
  * @author Eric Zhao
  * @since 0.2.0
  */

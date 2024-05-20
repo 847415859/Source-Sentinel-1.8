@@ -31,7 +31,7 @@ public interface AdvancedMetricExtension extends MetricExtension {
 
     /**
      * Add current pass count of the resource name.
-     *
+     * 添加资源名称的当前通过次数
      * @param rw          resource representation (including resource name, traffic type, etc.)
      * @param batchCount  count to add
      * @param args        additional arguments of the resource, eg. if the resource is a method name,
@@ -41,7 +41,7 @@ public interface AdvancedMetricExtension extends MetricExtension {
 
     /**
      * Add current block count of the resource name.
-     *
+     * 添加资源名称的当前块计数。
      * @param rw         resource representation (including resource name, traffic type, etc.)
      * @param batchCount count to add
      * @param origin     the origin of caller (if present)
@@ -54,7 +54,7 @@ public interface AdvancedMetricExtension extends MetricExtension {
 
     /**
      * Add current completed count of the resource name.
-     *
+     * 添加资源名称的当前完成计数。
      * @param rw         resource representation (including resource name, traffic type, etc.)
      * @param batchCount count to add
      * @param rt         response time of current invocation
@@ -64,7 +64,7 @@ public interface AdvancedMetricExtension extends MetricExtension {
 
     /**
      * Add current exception count of the resource name.
-     *
+     * 添加资源名称的当前异常计数。
      * @param rw         resource representation (including resource name, traffic type, etc.)
      * @param batchCount count to add
      * @param throwable  exception related.

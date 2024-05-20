@@ -29,7 +29,7 @@ import com.alibaba.csp.sentinel.util.function.Predicate;
 /**
  * <p>The statistic node keep three kinds of real-time statistics metrics:</p>
  * <ol>
- * <li>metrics in second level ({@code rollingCounterInSecond})</li>
+ * <li>metrics in seconds level ({@code rollingCounterInSecond})</li>
  * <li>metrics in minute level ({@code rollingCounterInMinute})</li>
  * <li>thread count</li>
  * </ol>
@@ -92,6 +92,8 @@ public class StatisticNode implements Node {
     /**
      * Holds statistics of the recent {@code INTERVAL} milliseconds. The {@code INTERVAL} is divided into time spans
      * by given {@code sampleCount}.
+     * 保存最近INTERVAL毫秒的统计信息。 INTERVAL按给定的sampleCount划分为时间跨度。
+     * 每秒的滚动计数器
      */
     private transient volatile Metric rollingCounterInSecond = new ArrayMetric(SampleCountProperty.SAMPLE_COUNT,
         IntervalProperty.INTERVAL);
@@ -99,11 +101,15 @@ public class StatisticNode implements Node {
     /**
      * Holds statistics of the recent 60 seconds. The windowLengthInMs is deliberately set to 1000 milliseconds,
      * meaning each bucket per second, in this way we can get accurate statistics of each second.
+     * 保存最近 60 秒的统计数据。 windowLengthInMs特意设置为1000毫秒，意思是每秒每个桶，这样我们就可以得到每秒的准确统计。
+     * 每分钟的滚动计数器
+     *
      */
     private transient Metric rollingCounterInMinute = new ArrayMetric(60, 60 * 1000, false);
 
     /**
      * The counter for thread count.
+     * 线程数计数器
      */
     private LongAdder curThreadNum = new LongAdder();
 
@@ -286,13 +292,17 @@ public class StatisticNode implements Node {
 
     @Override
     public long tryOccupyNext(long currentTime, int acquireCount, double threshold) {
+        // 获取最大值
         double maxCount = threshold * IntervalProperty.INTERVAL / 1000;
+        // 获取到当前排队执行到的数
         long currentBorrow = rollingCounterInSecond.waiting();
-        if (currentBorrow >= maxCount) {
-            return OccupyTimeoutProperty.getOccupyTimeout();
-        }
 
+        if (currentBorrow >= maxCount) {
+            return OccupyTimeoutProperty.getOccupyTimeout();    // 默认500
+        }
+        // 计算桶数据量
         int windowLength = IntervalProperty.INTERVAL / SampleCountProperty.SAMPLE_COUNT;
+        // 获取最早时间
         long earliestTime = currentTime - currentTime % windowLength + windowLength - IntervalProperty.INTERVAL;
 
         int idx = 0;

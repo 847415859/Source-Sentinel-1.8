@@ -32,12 +32,12 @@ import java.lang.annotation.*;
 public @interface SentinelResource {
 
     /**
-     * @return name of the Sentinel resource
+     * @return name of the Sentinel resource    资源名称
      */
     String value() default "";
 
     /**
-     * @return the entry type (inbound or outbound), outbound by default
+     * @return the entry type (inbound or outbound), outbound by default   条目类型（入站或出站），默认为出站
      */
     EntryType entryType() default EntryType.OUT;
 

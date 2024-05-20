@@ -65,16 +65,21 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  */
 public final class SystemRuleManager {
 
+    // 系统负载
     private static volatile double highestSystemLoad = Double.MAX_VALUE;
     /**
      * cpu usage, between [0, 1]
+     * CPU 使用率
      */
     private static volatile double highestCpuUsage = Double.MAX_VALUE;
+    // QPS
     private static volatile double qps = Double.MAX_VALUE;
+    // RT(响应时间)
     private static volatile long maxRt = Long.MAX_VALUE;
+    // 最大线程
     private static volatile long maxThread = Long.MAX_VALUE;
     /**
-     * mark whether the threshold are set by user.
+     * mark whether the threshold are set by user.  标记阈值是否由用户设置
      */
     private static volatile boolean highestSystemLoadIsSet = false;
     private static volatile boolean highestCpuUsageIsSet = false;
@@ -82,9 +87,11 @@ public final class SystemRuleManager {
     private static volatile boolean maxRtIsSet = false;
     private static volatile boolean maxThreadIsSet = false;
 
+    // 系统检测是否启用
     private static AtomicBoolean checkSystemStatus = new AtomicBoolean(false);
-
+    // 定期记录系统的状态
     private static SystemStatusListener statusListener = null;
+    // 记录系统信息
     private final static SystemPropertyListener listener = new SystemPropertyListener();
     private static SentinelProperty<List<SystemRule>> currentProperty = new DynamicSentinelProperty<List<SystemRule>>();
 
@@ -95,6 +102,7 @@ public final class SystemRuleManager {
     static {
         checkSystemStatus.set(false);
         statusListener = new SystemStatusListener();
+        // 每分钟记录一次
         scheduler.scheduleAtFixedRate(statusListener, 0, 1, TimeUnit.SECONDS);
         currentProperty.addListener(listener);
     }
@@ -283,14 +291,15 @@ public final class SystemRuleManager {
 
     /**
      * Apply {@link SystemRule} to the resource. Only inbound traffic will be checked.
-     *
+     * 将SystemRule应用到资源。仅检查入站流量。
      * @param resourceWrapper the resource.
-     * @throws BlockException when any system rule's threshold is exceeded.
+     * @throws BlockException when any system rule's threshold is exceeded. 当超过任何系统规则的阈值时。
      */
     public static void checkSystem(ResourceWrapper resourceWrapper, int count) throws BlockException {
         if (resourceWrapper == null) {
             return;
         }
+        // 确保检查开关已打开
         // Ensure the checking switch is on.
         if (!checkSystemStatus.get()) {
             return;
@@ -301,31 +310,31 @@ public final class SystemRuleManager {
             return;
         }
 
-        // total qps
+        // total qps  总的qps
         double currentQps = Constants.ENTRY_NODE.passQps();
         if (currentQps + count > qps) {
             throw new SystemBlockException(resourceWrapper.getName(), "qps");
         }
 
-        // total thread
+        // total thread 总线程数
         int currentThread = Constants.ENTRY_NODE.curThreadNum();
         if (currentThread > maxThread) {
             throw new SystemBlockException(resourceWrapper.getName(), "thread");
         }
-
+        // 计算 Rt(平均响应时间)
         double rt = Constants.ENTRY_NODE.avgRt();
         if (rt > maxRt) {
             throw new SystemBlockException(resourceWrapper.getName(), "rt");
         }
 
-        // load. BBR algorithm.
+        // load. BBR algorithm. 系统负载
         if (highestSystemLoadIsSet && getCurrentSystemAvgLoad() > highestSystemLoad) {
             if (!checkBbr(currentThread)) {
                 throw new SystemBlockException(resourceWrapper.getName(), "load");
             }
         }
 
-        // cpu usage
+        // cpu 使用
         if (highestCpuUsageIsSet && getCurrentCpuUsage() > highestCpuUsage) {
             throw new SystemBlockException(resourceWrapper.getName(), "cpu");
         }

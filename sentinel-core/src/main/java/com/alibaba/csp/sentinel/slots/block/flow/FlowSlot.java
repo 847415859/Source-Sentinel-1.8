@@ -34,20 +34,28 @@ import java.util.Collection;
  * will use pre-set rules to decide whether the incoming requests should be
  * blocked.
  * </p>
+ * 结合从之前的槽（NodeSelectorSlot、ClusterNodeBuilderSlot 和 StatisticSlot）收集的运行时统计信息，
+ * FlowSlot 将使用预先设置的规则来决定是否应阻止传入请求。
  *
  * <p>
  * {@code SphU.entry(resourceName)} will throw {@code FlowException} if any rule is
  * triggered. Users can customize their own logic by catching {@code FlowException}.
+ * 如果触发任何规则，{@code SphU.entry(resourceName)} 将抛出 {@code FlowException}。用户可以通过捕获{@code FlowException}来定制自己的逻辑。
+ *
  * </p>
  *
  * <p>
  * One resource can have multiple flow rules. FlowSlot traverses these rules
  * until one of them is triggered or all rules have been traversed.
+ * 一种资源可以有多个流规则。 FlowSlot会遍历这些规则，直到其中一条规则被触发或者所有规则都遍历完毕。
+ *
  * </p>
  *
  * <p>
  * Each {@link FlowRule} is mainly composed of these factors: grade, strategy, path. We
  * can combine these factors to achieve different effects.
+ * 每个{@link FlowRule}主要由以下因素组成：等级、策略、路径。我们可以结合这些因素来达到不同的效果。
+ *
  * </p>
  *
  * <p>
@@ -55,6 +63,8 @@ import java.util.Collection;
  * isolation and 1 for request count shaping (QPS). Both thread count and request
  * count are collected in real runtime, and we can view these statistics by
  * following command:
+ * 等级由 {@link FlowRule} 中的 {@codegrade} 字段定义。这里，0 表示线程隔离，1 表示请求计数整形 (QPS)。
+ * 线程数和请求数都是在实时运行时收集的，我们可以通过以下命令查看这些统计信息：
  * </p>
  *
  * <pre>

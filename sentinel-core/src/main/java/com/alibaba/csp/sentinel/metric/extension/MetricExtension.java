@@ -24,6 +24,8 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  * It's necessary to not do time-consuming operation in any of the interface's method,
  * otherwise biz logic will be blocked.
  * </p>
+ * 该接口提供了 Sentinel 内部统计信息的扩展。
+ * 请注意，此类中的所有方法都将在同一业务逻辑线程中调用。接口的任何方法中都不能进行耗时的操作，否则业务逻辑会被阻塞。
  *
  * @author Carpenter Lee
  * @since 1.6.1
@@ -32,7 +34,7 @@ public interface MetricExtension {
 
     /**
      * Add current pass count of the resource name.
-     *
+     * 添加资源名称的当前通过次数
      * @param n        count to add
      * @param resource resource name
      * @param args     additional arguments of the resource, eg. if the resource is a method name,
@@ -42,7 +44,7 @@ public interface MetricExtension {
 
     /**
      * Add current block count of the resource name.
-     *
+     * 添加资源名称的当前块计数。
      * @param n              count to add
      * @param resource       resource name
      * @param origin         the original invoker.
@@ -54,7 +56,7 @@ public interface MetricExtension {
 
     /**
      * Add current completed count of the resource name.
-     *
+     * 添加资源名称的当前完成计数。
      * @param n        count to add
      * @param resource resource name
      * @param args     additional arguments of the resource, eg. if the resource is a method name,
@@ -73,7 +75,7 @@ public interface MetricExtension {
 
     /**
      * Add response time of the resource name.
-     *
+     * 添加资源名称的响应时间。
      * @param rt       response time in millisecond
      * @param resource resource name
      * @param args     additional arguments of the resource, eg. if the resource is a method name,
@@ -83,7 +85,7 @@ public interface MetricExtension {
 
     /**
      * Increase current thread count of the resource name.
-     *
+     * 增加资源名称的当前线程数。
      * @param resource resource name
      * @param args     additional arguments of the resource, eg. if the resource is a method name,
      *                 the args will be the parameters of the method.
@@ -92,7 +94,7 @@ public interface MetricExtension {
 
     /**
      * Decrease current thread count of the resource name.
-     *
+     * 减少资源名称的当前线程数。
      * @param resource resource name
      * @param args     additional arguments of the resource, eg. if the resource is a method name,
      *                 the args will be the parameters of the method.

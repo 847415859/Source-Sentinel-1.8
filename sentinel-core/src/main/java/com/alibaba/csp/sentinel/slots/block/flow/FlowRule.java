@@ -48,6 +48,7 @@ public class FlowRule extends AbstractRule {
 
     /**
      * The threshold type of flow control (0: thread count, 1: QPS).
+     * 限流阈值类型，QPS 模式（1）或并发线程数模式（0）
      */
     private int grade = RuleConstant.FLOW_GRADE_QPS;
 
@@ -58,15 +59,16 @@ public class FlowRule extends AbstractRule {
 
     /**
      * Flow control strategy based on invocation chain.
-     *
-     * {@link RuleConstant#STRATEGY_DIRECT} for direct flow control (by origin);
-     * {@link RuleConstant#STRATEGY_RELATE} for relevant flow control (with relevant resource);
-     * {@link RuleConstant#STRATEGY_CHAIN} for chain flow control (by entrance resource).
+     * 基于调用链的流量控制策略。
+     * {@link RuleConstant#STRATEGY_DIRECT} for direct flow control (by origin);                 直连
+     * {@link RuleConstant#STRATEGY_RELATE} for relevant flow control (with relevant resource);  相关
+     * {@link RuleConstant#STRATEGY_CHAIN} for chain flow control (by entrance resource).        链路
      */
     private int strategy = RuleConstant.STRATEGY_DIRECT;
 
     /**
      * Reference resource in flow control with relevant resource or context.
+     * 流量控制中的参考资源以及相关资源或上下文。
      */
     private String refResource;
 

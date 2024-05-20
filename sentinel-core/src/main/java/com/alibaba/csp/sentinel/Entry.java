@@ -55,12 +55,19 @@ public abstract class Entry implements AutoCloseable {
 
     protected static final Object[] OBJECTS0 = new Object[0];
 
+    /**
+     * 创建时间
+     */
     private final long createTimestamp;
+    /**
+     * 完成时间
+     */
     private long completeTimestamp;
 
     private Node curNode;
     /**
      * {@link Node} of the specific origin, Usually the origin is the Service Consumer.
+     * 具体起源的Node ，通常起源是Service Consumer
      */
     private Node originNode;
 
@@ -193,7 +200,8 @@ public abstract class Entry implements AutoCloseable {
      * Like {@code CompletableFuture} since JDK 8, it guarantees specified handler
      * is invoked when this entry terminated (exited), no matter it's blocked or permitted.
      * Use it when you did some STATEFUL operations on entries.
-     * 
+     *  与 JDK 8 以来的CompletableFuture一样，它保证在该条目终止（退出）时调用指定的处理程序，无论它是被阻止还是被允许。
+     *  当您对条目执行一些 STATEFUL 操作时使用它。
      * @param handler handler function on the invocation terminates
      * @since 1.8.0
      */

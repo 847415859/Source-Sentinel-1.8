@@ -39,9 +39,10 @@ import com.alibaba.csp.sentinel.spi.Spi;
  * count, exception), and a list of callers as well which is marked by
  * {@link ContextUtil#enter(String origin)}
  * </p>
+ * 该槽维护资源运行统计信息（响应时间、qps、线程数、异常）以及由ContextUtil.enter(String origin)标记的调用者列表
  * <p>
- * One resource has only one cluster node, while one resource can have multiple
- * default nodes.
+ * One resource has only one cluster node, while one resource can have multiple default nodes.
+ * 一种资源只能有一个集群节点，而一种资源可以有多个默认节点。
  * </p>
  *
  * @author jialiang.linjl
@@ -56,16 +57,21 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
      * code goes into {@link #entry(Context, ResourceWrapper, DefaultNode, int, boolean, Object...)},
      * the resource name must be same but context name may not.
      * </p>
+     * 请记住，无论在哪个上下文中，相同的资源（{@link ResourceWrapperequals(Object)}）都将在全局范围内共享相同的{@link ProcessorSlotChain}。
+     * 因此，如果代码进入 {@link entry(Context, ResourceWrapper, DefaultNode, int, boolean, Object...)}，资源名称必须相同，但上下文名称可能不同。
+     *
      * <p>
      * To get total statistics of the same resource in different context, same resource
      * shares the same {@link ClusterNode} globally. All {@link ClusterNode}s are cached
      * in this map.
+     * 为了获得不同上下文中相同资源的总统计信息，相同资源在全局共享相同的{@link ClusterNode}。所有 {@link ClusterNode} 都缓存在此映射中。
      * </p>
      * <p>
      * The longer the application runs, the more stable this mapping will
      * become. so we don't concurrent map but a lock. as this lock only happens
      * at the very beginning while concurrent map will hold the lock all the time.
      * </p>
+     * 应用程序运行的时间越长，该映射就会变得越稳定。所以我们不是并发map而是锁。因为这个锁只发生在最开始的时候，而并发映射将一直持有锁。
      */
     private static volatile Map<ResourceWrapper, ClusterNode> clusterNodeMap = new HashMap<>();
 
@@ -80,6 +86,7 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
         if (clusterNode == null) {
             synchronized (lock) {
                 if (clusterNode == null) {
+                    // 创建 Cluster 节点
                     // Create the cluster node.
                     clusterNode = new ClusterNode(resourceWrapper.getName(), resourceWrapper.getResourceType());
                     HashMap<ResourceWrapper, ClusterNode> newMap = new HashMap<>(Math.max(clusterNodeMap.size(), 16));
@@ -95,6 +102,7 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
         /*
          * if context origin is set, we should get or create a new {@link Node} of
          * the specific origin.
+         * 如果设置了上下文原点，我们应该获取或创建特定原点的新{@link Node}。
          */
         if (!"".equals(context.getOrigin())) {
             Node originNode = node.getClusterNode().getOrCreateOriginNode(context.getOrigin());

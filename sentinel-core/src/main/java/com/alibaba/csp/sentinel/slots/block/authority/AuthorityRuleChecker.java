@@ -34,7 +34,7 @@ final class AuthorityRuleChecker {
         if (StringUtil.isEmpty(requester) || StringUtil.isEmpty(rule.getLimitApp())) {
             return true;
         }
-
+        // 判断是否存在多个授权应用，多个以,为分隔符
         // Do exact match with origin name.
         int pos = rule.getLimitApp().indexOf(requester);
         boolean contain = pos > -1;
@@ -51,12 +51,13 @@ final class AuthorityRuleChecker {
 
             contain = exactlyMatch;
         }
-
+        // 配置策略
         int strategy = rule.getStrategy();
+        // 配置黑名单（包含）
         if (strategy == RuleConstant.AUTHORITY_BLACK && contain) {
             return false;
         }
-
+        // 配置了白名单（不包含）
         if (strategy == RuleConstant.AUTHORITY_WHITE && !contain) {
             return false;
         }

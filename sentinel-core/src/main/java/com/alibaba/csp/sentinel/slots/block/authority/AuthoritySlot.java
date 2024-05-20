@@ -27,12 +27,15 @@ import com.alibaba.csp.sentinel.spi.Spi;
 
 /**
  * A {@link ProcessorSlot} that dedicates to {@link AuthorityRule} checking.
+ * 专用于AuthorityRule检查的ProcessorSlot 。<br/>
  *
+ *  授权-黑白名单
+ *  <image src="../../../../../../../../../../../images/授权.png"></image>
  * @author leyou
  * @author Eric Zhao
  */
 @Spi(order = Constants.ORDER_AUTHORITY_SLOT)
-public class AuthoritySlot extends AbstractLinkedProcessorSlot<DefaultNode> {
+public class  AuthoritySlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args)
@@ -47,12 +50,12 @@ public class AuthoritySlot extends AbstractLinkedProcessorSlot<DefaultNode> {
     }
 
     void checkBlackWhiteAuthority(ResourceWrapper resource, Context context) throws AuthorityException {
-
+        // 获取所有的认证规则
         List<AuthorityRule> rules = AuthorityRuleManager.getRules(resource.getName());
         if (rules == null) {
             return;
         }
-
+        //检验是否符合
         for (AuthorityRule rule : rules) {
             if (!AuthorityRuleChecker.passCheck(rule, context)) {
                 throw new AuthorityException(context.getOrigin(), rule);

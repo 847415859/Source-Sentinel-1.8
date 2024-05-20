@@ -33,6 +33,11 @@ import com.alibaba.csp.sentinel.slots.system.SystemRule;
  * To configure the criteria, we can use <code>XxxRuleManager.loadRules()</code> to load rules.
  * </p>
  *
+ * 用于记录统计数据和执行资源规则检查的基本 Sentinel API。
+ * 从概念上讲，需要保护的物理或逻辑资源应该被条目包围。如果满足任何条件，例如，对此资源的请求将被阻止。
+ * 当超过任何Rule的阈值时。一旦阻塞，就会抛出BlockException 。
+ * 要配置条件，我们可以使用XxxRuleManager.loadRules()来加载规则。
+ *
  * <p>
  * Following code is an example, {@code "abc"} represent a unique name for the
  * protected resource:
